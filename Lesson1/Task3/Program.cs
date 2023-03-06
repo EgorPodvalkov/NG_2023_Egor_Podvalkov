@@ -38,7 +38,12 @@ void PrintListToConsole<T>(List<T> list, string listName = "List")
 
 const int count = 10;
 List<int> userList = GetListFromConsole(count);
-List<int> copyList = new List<int>(userList);
+List<int> dubicatedList = new List<int>();
+foreach(int number in userList)
+{
+    dubicatedList.Add(number);
+    dubicatedList.Add(number);
+}
 
 PrintListToConsole(userList, "User list");
-PrintListToConsole(copyList, "Copied list");
+PrintListToConsole(dubicatedList, "Dublicated list");
