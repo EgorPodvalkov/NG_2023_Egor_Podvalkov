@@ -39,11 +39,27 @@ void PrintListToConsole<T>(List<T> list, string listName = "List")
 const int count = 10;
 List<int> userList = GetListFromConsole(count);
 List<int> dubicatedList = new List<int>();
-foreach(int number in userList)
+PrintListToConsole(userList, "User list");
+int dublNum;
+while (true)
+{
+    try
+    {
+        Console.Write("Enter number for dublication: ");
+        dublNum = Int32.Parse(Console.ReadLine());
+        break;
+    }
+    catch
+    {
+        Console.WriteLine("Bad number :(, try again!");
+    }
+}
+foreach (int number in userList)
 {
     dubicatedList.Add(number);
-    dubicatedList.Add(number);
+    if (number == dublNum)
+    {
+        dubicatedList.Add(number);
+    }
 }
-
-PrintListToConsole(userList, "User list");
 PrintListToConsole(dubicatedList, "Dublicated list");
