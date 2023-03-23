@@ -8,8 +8,18 @@ public class Drive : Detail
     public string? Type { get; set; }
     public string? Speed { get; set; }
     public string? InterfaceType { get; set; }
-    public string? Lifetime { get; set; }
+    public int? Lifetime { get; set; }
 
     public Drive(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
+
+    public override string GetFullInfo()
+    {
+        string result = base.GetFullInfo() + "\n" +
+            "   " + $"Size: {Size}, Interface Type: {InterfaceType}";
+        if(Type == "SSD") {
+            result += $", Speed: {Speed}, Lifetime: {Lifetime}";
+        }
+        return result;
+    }
 }

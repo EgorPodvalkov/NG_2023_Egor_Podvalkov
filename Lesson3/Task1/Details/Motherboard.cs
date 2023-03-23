@@ -9,4 +9,10 @@ public class Motherboard : Detail
 
     public Motherboard(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
+
+    public override string GetFullInfo()
+    {
+        return base.GetFullInfo() + "\n" +
+            "   " + $"Socket Type: {SocketType}";
+    }
 }

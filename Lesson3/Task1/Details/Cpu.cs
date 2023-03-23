@@ -10,4 +10,10 @@ public class Cpu : Detail
 
     public Cpu(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
+
+    public override string GetFullInfo()
+    {
+        return base.GetFullInfo() + "\n" +
+            "   " + $"Socket Type: {SocketType}, Cores: {Cores}, Frequency: {Frequency}";
+    }
 }

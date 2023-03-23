@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Task1.Classes;
 
@@ -7,6 +8,7 @@ public class Computer
     private int _ramSlots = 0;
     private string? _interfaceType;
     private string? _soketType;
+    //private string? _lastError;
 
     public List<Ram> RamsList { get; } = new List<Ram>();
     public List<Drive> DrivesList { get; } = new List<Drive>();
@@ -17,8 +19,12 @@ public class Computer
     public Computer() { }
 
 
-    public bool Add(Ram ram)
+    public bool Add(Ram? ram)
     {
+        if (ram == null) { 
+            return false;
+        }
+
         if (RamsList.Count < _ramSlots) {
             RamsList.Add(ram);
             return true;
@@ -27,8 +33,12 @@ public class Computer
         return false;
     }
 
-    public bool Add(Drive drive)
+    public bool Add(Drive? drive)
     {
+        if (drive == null)
+        {
+            return false;
+        }
 
         if (_interfaceType == null) { 
             _interfaceType = drive.InterfaceType;
@@ -45,8 +55,13 @@ public class Computer
         return false;
     }
 
-    public bool Add(Cpu cpu) 
+    public bool Add(Cpu? cpu) 
     {
+        if (cpu == null)
+        {
+            return false;
+        }
+
         if (_soketType == null) {
             _soketType = cpu.SocketType;
             Cpu = cpu;
@@ -61,14 +76,22 @@ public class Computer
         return false;
     }
 
-    public bool Add(Gpu gpu)
+    public bool Add(Gpu? gpu)
     {
+        if (gpu == null) {
+            return false;
+        }
+
         Gpu = gpu; 
         return true;
     }
 
-    public bool Add(Motherboard motherboard)
+    public bool Add(Motherboard? motherboard)
     {
+        if (motherboard == null) {
+            return false;
+        }
+
         if (_soketType == null)
         {
             _soketType = motherboard.SocketType;
@@ -154,5 +177,36 @@ public class Computer
         }
 
         return false;
+    }
+
+    public decimal GetFullPrice()
+    {
+        decimal sum = 0;
+        
+        // Motherboard
+        if (Motherboard != null) {
+            sum += Motherboard.Price;
+        }
+
+        // CPU
+        if (Cpu != null) {
+            sum += Cpu.Price;
+        }
+
+        // GPU
+        if (Gpu != null) {
+            sum += Gpu.Price;
+        }
+
+        // RAMs
+        foreach (var ram in RamsList) {
+            sum += ram.Price;
+        }
+
+        // Drives
+        foreach (var drive in DrivesList) {
+            sum += drive.Price;
+        }
+        return sum;
     }
 }
