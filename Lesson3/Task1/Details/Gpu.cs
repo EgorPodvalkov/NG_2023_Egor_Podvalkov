@@ -10,10 +10,10 @@ public class Gpu : Detail
 
     public Gpu(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
- 
-    public override string GetFullInfo()
+
+    public override string GetFullInfo(int pad = 3)
     {
-        return base.GetFullInfo() + "\n" +
-            "   " + $"Memory Size: {MemorySize}, Frequency: {Frequency}";
+        return base.GetFullInfo(pad) + "\n" +
+            "".PadLeft(pad) + $"Memory Size: {MemorySize}, Frequency: {Frequency}";
     }
 }

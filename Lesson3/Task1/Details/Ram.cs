@@ -10,9 +10,9 @@ public class Ram : Detail
     public Ram (decimal price, string supplier, string country, string name) 
         : base(price, supplier, country, name) { }
 
-    public override string GetFullInfo()
+    public override string GetFullInfo(int pad = 3)
     {
-        return base.GetFullInfo() + "\n" +
-            "   " + $"Type: {Type}, Size: {Size}";
+        return base.GetFullInfo(pad) + "\n" +
+            "".PadLeft(pad) + $"Type: {Type}, Size: {Size}";
     }
 }

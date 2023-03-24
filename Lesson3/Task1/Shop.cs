@@ -1,4 +1,5 @@
-﻿using Task1.Abstractions;
+﻿using System.Diagnostics;
+using Task1.Abstractions;
 using Task1.Classes;
 
 namespace Task1;
@@ -187,14 +188,13 @@ public class Shop
     
     public void SetBudget()
     {
-        try
-        {
+        try {
             Console.Write("Enter budget($): ");
             UserBudget =  decimal.Parse(Console.ReadLine());
-            GenerateDetailsList(UserBudget);
+            GenerateDetailsList(UserBudget - Bucket.GetFullPrice());
         }
-        catch
-        {
+        catch {
+            Console.Clear();
             Console.Write("Bad number :(! ");
             SetBudget();
         }
@@ -208,108 +208,231 @@ public class Shop
 
     public void Menu(int index = 0)
     {
+        // Bad index
+        if(index < 0 || index >= _tempDetails.Count) {
+            index = 0;
+        }
+
         // Clear
         Console.Clear();
 
-        // Shop 
-        Console.WriteLine("\tShop");
+        // Shop Name
+        Console.WriteLine("\tComputer Collector");
 
+        int pad = 25;
         // Budget
-        Console.WriteLine($"Your budget: {UserBudget}$ \t\t\t(M to change budget)");
+        Console.Write("M to change budget".PadRight(pad));
+        Console.WriteLine($"Your budget: {UserBudget}$");
 
         // Bucket
         decimal bucketPrice = Bucket.GetFullPrice();
-        Console.WriteLine($"Your bucket({bucketPrice}$ in bucket," +
-            $" {UserBudget - bucketPrice}$ left) \t(B to go to busket)");
+        Console.Write("B to go to bucket".PadRight(pad));
+        Console.WriteLine($"Your bucket({bucketPrice}$ in bucket, {UserBudget - bucketPrice}$ left)");
 
-        // Search
-        Console.WriteLine($"Search \t\t\t\t\t(F for search)");
+        // Search, Up\Down, Enter
+        Console.WriteLine("F to search".PadRight(pad)
+            + "▲/▼ to go up/down".PadRight(pad)
+            + "Enter to add to bucket");
 
-        // Price Diapazone
-        Console.WriteLine($"Set price diapazone \t\t\t(D for setting diapazone)\n");
+        // Price Diapason, Prev/Next Page, Quit
+        Console.WriteLine("D to set diapason".PadRight(pad)
+            + "◄/► to go prev/next page".PadRight(pad)
+            + "Esc to quit");
 
-        Console.WriteLine("------------------------------------");
+        Console.WriteLine("\n" + "".PadRight(Console.WindowWidth, '_'));
         
         // Pages
         int onPage = 5;
         int page = index / onPage;
-        Console.WriteLine($"Page {page + 1} from {(_tempDetails.Count) / onPage + 1}\n");
-
-        // points maker
-        var point = new List<string>(onPage);
-        for (int i = 0; i < onPage; i++)
-        {
-            point.Add(" ");
-        }
-        point[index % onPage] = ">";
-
-        // Details
-        for (int i = 0; i < onPage && i < _tempDetails.Count - (page * onPage); i++) {
-            Detail detail = _tempDetails[(page * onPage) + i];
-            Console.WriteLine(point[i] + detail.GetFullInfo() + "\n");
-        }
-
-        // Getting button
-        var key = Console.ReadKey();
         
-        // Go upper in menu
-        if (key.Key == ConsoleKey.UpArrow) { 
-            if (index == 0) {
-                index++;
-            }
-            Menu(index - 1);
-        }
-        // Go downer in menu
-        else if (key.Key == ConsoleKey.DownArrow) { 
-            if (index == _tempDetails.Count - 1) {
-                index--;
-            }
-            Menu(index + 1);
-        }
-        // Go to next page
-        else if (key.Key == ConsoleKey.RightArrow) { 
-            if (page == _tempDetails.Count / onPage) {
-                Menu(index);
-            }
-            else if (index + onPage >= _tempDetails.Count) {
-                Menu(_tempDetails.Count - 1);
-            }
-            else { 
-                Menu(index + onPage);
-            }
-        }
-        // Go to prev page
-        else if (key.Key == ConsoleKey.LeftArrow) { 
-            if (page == 0) {
-                Menu(index);
-            }
-            else { 
-                Menu(index - onPage);
-            }
-        }
-        // Go to budget
-        else if (key.Key == ConsoleKey.M) {
-            //set budget function
-        }
-        // Go to busket
-        else if (key.Key == ConsoleKey.B) {
-            //go to busket function
-        }
-        // Go to search
-        else if (key.Key == ConsoleKey.F) {
-            //search function
-        }
-        // Go to diapazone
-        else if (key.Key == ConsoleKey.D) {
-            //set diapazone function
-        }
-        // Escape from shop
-        else if (key.Key == ConsoleKey.Escape) { 
+        if(_tempDetails.Count > 0) {
+            Console.WriteLine($"Page {page + 1} from {(_tempDetails.Count - 1) / onPage + 1}\n");
 
+            // Details
+            for (int i = 0; i < onPage && i < _tempDetails.Count - (page * onPage); i++)
+            {
+                Detail detail = _tempDetails[(page * onPage) + i];
+                if (i == index % onPage) {
+                    Console.WriteLine($"> {detail.GetFullInfo(4)}\n");
+                }
+                else { 
+                    Console.WriteLine($"{detail.GetFullInfo()}\n");
+                }
+            }
         }
-        // No sense buttons
         else {
-            Menu(index);
+            // No Details
+            Console.WriteLine(" No hardwares :(\nTry to change budget or diapason, delete expensive hardware from bucket, or use search.");
         }
+
+        // Checking User Response
+        bool invalidResponse;
+        do
+        {
+            invalidResponse = false;
+            // Getting Key
+            var key = Console.ReadKey();
+
+            // Go Upper in Menu
+            if (key.Key == ConsoleKey.UpArrow) {
+                if (index == 0) {
+                    invalidResponse = true;
+                }
+                else {
+                    Menu(index - 1);
+                }
+            }
+            // Go Downer in Menu
+            else if (key.Key == ConsoleKey.DownArrow) {
+                if (index == _tempDetails.Count - 1) {
+                    invalidResponse = true;
+                }
+                else { 
+                    Menu(index + 1);
+                }
+            }
+            // Go to Next Page
+            else if (key.Key == ConsoleKey.RightArrow) {
+                if (page == (_tempDetails.Count - 1) / onPage) {
+                    invalidResponse = true;
+                }
+                else if (index + onPage >= _tempDetails.Count) {
+                    Menu(_tempDetails.Count - 1);
+                }
+                else {
+                    Menu(index + onPage);
+                }
+            }
+            // Go to Prev Page
+            else if (key.Key == ConsoleKey.LeftArrow) {
+                if (page == 0) {
+                    invalidResponse = true;
+                }
+                else {
+                    Menu(index - onPage);
+                }
+            }
+            // Add to Bucket
+            else if (key.Key == ConsoleKey.Enter) {
+                AddToBucket(index);
+                Menu(index);
+            }
+            // Go to Budget
+            else if (key.Key == ConsoleKey.M) {
+                Console.Clear();
+                SetBudget();
+                Menu();
+            }
+            // Go to Bucket
+            else if (key.Key == ConsoleKey.B) {
+                //go to Bucket function
+            }
+            // Go to Search
+            else if (key.Key == ConsoleKey.F) {
+                SearchMenu();
+            }
+            // Go to Diapason
+            else if (key.Key == ConsoleKey.D) {
+                SetDiapasonMenu();
+                Menu();
+            }
+            // Escape from Shop
+            else if (key.Key == ConsoleKey.Escape) {
+                break;
+            }
+            // No Sence Response
+            else {
+                Console.Write("\b \b");
+                invalidResponse = true;
+            }
+        } while (invalidResponse);
+    }
+
+    public void SetDiapasonMenu()
+    {
+        decimal min;
+        decimal max;
+        Console.Clear();
+
+        // getting min
+        do
+        {
+            try
+            {
+                Console.Write("Enter min price($): ");
+                min = decimal.Parse(Console.ReadLine());
+                break;
+            }
+            catch
+            {
+                Console.Write(" Bad number :(!\n");
+            }
+        } while (true);
+        // getting max
+        do
+        {
+            try {
+                Console.Write("Enter max price($): ");
+                max = decimal.Parse(Console.ReadLine());
+                if(max > min) {
+                    break;
+                }
+                else {
+                    Console.Write(" Bad number :(!\n");
+                }
+            }
+            catch {
+                Console.Write(" Bad number :(!\n");
+            }
+        } while (true);
+        
+        GenerateDetailsList(max, min);
+    }
+
+    public void SearchMenu()
+    {
+        Console.Clear();
+        Console.Write("Search: ");
+        string str = Console.ReadLine();
+        str ??= "";
+
+        _tempDetails = new List<Detail>(from d in Details where d.Name.ToLower().Contains(str.ToLower()) orderby d.Price select d);
+        Menu();
+    }
+
+    public void AddToBucket(int index)
+    {
+        var detail = _tempDetails[index];
+        string status = "";
+
+        // Price Error
+        if (detail.Price > UserBudget - Bucket.GetFullPrice()) {
+            status += "\nError:\n  Not enough money in budged. ";
+            status += "Try to change budget or delete something from bucket\n";
+        }
+        // Success
+        else if (Bucket.Add(detail)) {
+            status += $"\nSuccess:\n  You added '{detail.Name}' to your bucket\n";
+            GenerateDetailsList(UserBudget - Bucket.GetFullPrice());
+        }
+        // Adding Error
+        else {
+            status += "\nError:\n  " + Bucket.LastError + "\n";
+        }
+
+        // Bucket info
+        string bucket = "Now in your bucket:\n";
+        bucket += "".PadRight(Console.WindowWidth, '-');
+        foreach (var d in Bucket.ListOfDetails())
+        {
+            bucket += "\n" + d.GetFullInfo() + "\n";
+        }
+        bucket += "".PadRight(Console.WindowWidth, '-');
+
+        // Waiting for Key and 
+        Console.Clear();
+        Console.WriteLine(bucket + status);
+        Console.WriteLine("Press any key");
+        Console.ReadKey();
     }
 }

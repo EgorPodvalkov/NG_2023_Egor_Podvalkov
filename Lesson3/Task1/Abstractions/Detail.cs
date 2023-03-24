@@ -16,9 +16,9 @@ public abstract class Detail
         Country = country;
         Name = name;
     }
-    public virtual string GetFullInfo()
+    public virtual string GetFullInfo(int pad = 3)
     {
         return $"{Name}\n" +
-            $"   {Price}$, {Country}";
+            "".PadLeft(pad) + $"{Price}$, {Country}";
     }
 }

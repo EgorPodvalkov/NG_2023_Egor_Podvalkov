@@ -13,10 +13,10 @@ public class Drive : Detail
     public Drive(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
 
-    public override string GetFullInfo()
+    public override string GetFullInfo(int pad = 3)
     {
-        string result = base.GetFullInfo() + "\n" +
-            "   " + $"Size: {Size}, Interface Type: {InterfaceType}";
+        string result = base.GetFullInfo(pad) + "\n" +
+            "".PadLeft(pad) + $"Size: {Size}, Interface Type: {InterfaceType}";
         if(Type == "SSD") {
             result += $", Speed: {Speed}, Lifetime: {Lifetime}";
         }
