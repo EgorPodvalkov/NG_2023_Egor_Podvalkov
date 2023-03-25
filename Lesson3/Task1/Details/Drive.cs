@@ -17,7 +17,8 @@ public class Drive : Detail
     {
         string result = base.GetFullInfo(pad) + "\n" +
             "".PadLeft(pad) + $"Size: {Size}, Interface Type: {InterfaceType}";
-        if(Type == "SSD") {
+        if (Type == "SSD")
+        {
             result += $", Speed: {Speed}, Lifetime: {Lifetime}";
         }
         return result;

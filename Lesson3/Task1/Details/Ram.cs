@@ -7,7 +7,7 @@ public class Ram : Detail
     public string? Type { get; set; }
     public string? Size { get; set; }
 
-    public Ram (decimal price, string supplier, string country, string name) 
+    public Ram(decimal price, string supplier, string country, string name)
         : base(price, supplier, country, name) { }
 
     public override string GetFullInfo(int pad = 3)
