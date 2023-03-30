@@ -19,9 +19,6 @@ public class Customer
         new Customer(2, "VHarbar", 100000)
     };
 
-    public static void PrintBalanceToConsole(int id)
-        => Console.WriteLine($"Customer`s with id {id} balance is: {GetBalanceById(id)}");
-
     public static decimal GetBalanceById(int id)
     {
         var customer = GetCustomerById(id);
@@ -32,15 +29,24 @@ public class Customer
 
     public static Customer? GetCustomerById(int id)
         => CustomersList.FirstOrDefault(x => x.Id == id);
-    
+}
+
+public static class CustomerConsoleLogger
+{
+    public static void PrintBalanceToConsole(int id)
+        => Console.WriteLine($"Customer`s with id {id} balance is: {Customer.GetBalanceById(id)}");
+}
+
+public static class CustomerDB
+{
     public static void UpdateBalance(int id, decimal newBalance)
     {
-        var customer = GetCustomerById(id);
+        var customer = Customer.GetCustomerById(id);
         if (customer == null)
             return;
         customer.Balance = newBalance;
-        customer.SaveToDatabase();
+        SaveToDatabase();
     }
 
-    private void SaveToDatabase() => Console.WriteLine("Saved!");
+    private static void SaveToDatabase() => Console.WriteLine("Saved!");
 }
