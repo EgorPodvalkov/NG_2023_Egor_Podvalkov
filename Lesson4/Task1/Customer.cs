@@ -11,8 +11,14 @@ public class Customer
         Id = id;
         Name = name;
         Balance = balance;
+        CustomerManager.CustomersList.Add(this);
     }
 
+    public void SaveToDatabase() => Console.WriteLine("Saved!");
+}
+
+public static class CustomerManager
+{
     public static List<Customer> CustomersList = new List<Customer>()
     {
         new Customer(1, "Fikus", 0),
@@ -41,6 +47,4 @@ public class Customer
         customer.Balance = newBalance;
         customer.SaveToDatabase();
     }
-
-    private void SaveToDatabase() => Console.WriteLine("Saved!");
 }
