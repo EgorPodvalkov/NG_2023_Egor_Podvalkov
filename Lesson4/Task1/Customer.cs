@@ -13,8 +13,6 @@ public class Customer
         Balance = balance;
         CustomerManager.CustomersList.Add(this);
     }
-
-    public void SaveToDatabase() => Console.WriteLine("Saved!");
 }
 
 public static class CustomerManager
@@ -38,13 +36,4 @@ public static class CustomerManager
 
     public static Customer? GetCustomerById(int id)
         => CustomersList.FirstOrDefault(x => x.Id == id);
-
-    public static void UpdateBalance(int id, decimal newBalance)
-    {
-        var customer = GetCustomerById(id);
-        if (customer == null)
-            return;
-        customer.Balance = newBalance;
-        customer.SaveToDatabase();
-    }
 }
