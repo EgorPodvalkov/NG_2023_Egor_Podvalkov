@@ -2,7 +2,7 @@
 
 namespace Task3;
 
-public class FilesManager : IWorkingWithFile
+public class FilesManager : IEditingFile, IReadingFromFile
 {
     public string ReadFromFile(string filename, Guid role)
     {
