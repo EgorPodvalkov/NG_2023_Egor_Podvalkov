@@ -2,17 +2,31 @@
 
 public class MagicClass
 {
-    private static Dictionary<int, string> _magicResponces = new Dictionary<int, string>()
-    {
-        {150, "Wow, your magic is fire magic!"},
-        {50000000, "Incredible! You have 50 millions of power! It's water magic!"}
-    }; 
 
-    public static void CountYourMagic(int magic)
+    public virtual void CountYourMagic(int magic)
     {
-        if (_magicResponces.TryGetValue(magic, out var response))
-            Console.WriteLine(response);
+        Console.WriteLine("I understand you...");
+    }
+}
+
+public class FireMagic: MagicClass
+{
+    public override void CountYourMagic(int magic)
+    {
+        if (magic == 150)
+            Console.WriteLine("Wow, your magic is fire magic!");
         else
-            Console.WriteLine("I understand you...");
+            base.CountYourMagic(magic);
+    }
+}
+
+public class WatherMagic: MagicClass
+{
+    public override void CountYourMagic(int magic)
+    {
+        if (magic == 50000000)
+            Console.WriteLine("Incredible! You have 50 millions of power! It's water magic!");
+        else
+            base.CountYourMagic(magic);
     }
 }
