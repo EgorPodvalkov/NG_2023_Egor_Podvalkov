@@ -1,2 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using Task2;
+using Task2.Interfaces;
+
+IMagicCounter m = new MagicClass();
+
+m.CountYourMagic(150);
