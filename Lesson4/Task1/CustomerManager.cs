@@ -21,4 +21,14 @@ public static class CustomerManager
 
     public static Customer? GetCustomerById(int id)
         => CustomersList.FirstOrDefault(x => x.Id == id);
+
+    public static void UpdateCustomerBalance(int customerId, decimal newBalance)
+    {
+        var customer = GetCustomerById(customerId);
+        if (customer == null)
+            return;
+        customer.Balance = newBalance;
+    }
+
+    public static void SaveToDatabase() => Console.WriteLine("Saved!");
 }
