@@ -6,11 +6,11 @@ public class UsersManager : IUserChecker
 {
     public Guid CheckRole(Guid roleId)
     {
-        return Guid.NewGuid();
+        return roleId;
     }
 
     public Guid CheckUser(Guid user)
     {
-        return Guid.NewGuid();
+        return user;
     }
 }
