@@ -1,4 +1,6 @@
-﻿namespace Task1;
+﻿using static System.Net.Mime.MediaTypeNames;
+
+namespace Task1;
 
 public class App
 {
@@ -91,7 +93,7 @@ public class App
 
             // Instructions for Menu
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("".PadLeft(Console.WindowWidth, '-'));
+            Console.Write("\n".PadLeft(Console.WindowWidth, '-'));
             Console.ForegroundColor = ConsoleColor.Gray;
             ShowFolderInfo();
 
@@ -144,7 +146,67 @@ public class App
                         break;
 
                     // → or Enter, Open Folder or File
-                    case ConsoleKey.RightArrow:
+                    case ConsoleKey key when key == ConsoleKey.RightArrow || key == ConsoleKey.Enter:
+                        // if Folder
+                        if (index < Folders.Count)
+                        {
+                            Path = Folders[index].FullName;
+                            index = 0;
+                            upperLine = 0;
+                        }
+                        // if File
+                        else
+                        {
+                            // open file
+                            goodResponce = false;
+                        }
+                        break;
+                
+
+                    // ← or Esc, Open Parent Folder
+                    case ConsoleKey key when key == ConsoleKey.LeftArrow || key == ConsoleKey.Escape:
+                        var oldPath = new DirectoryInfo(Path);
+                        var parent = oldPath.Parent;
+                        
+                        // if Parent Exist
+                        if (parent != null)
+                        {
+                            Path = parent.FullName;
+                            index = Folders.FindIndex(folder => folder.FullName == oldPath.FullName);
+                            Console.Write("d");
+                        }
+                        // if Parent Not Exist
+                        else 
+                            goodResponce = false;
+                        break;
+
+                    // X, Cut File or Folder
+                    case ConsoleKey.X:
+                        //
+                        break;
+
+                    // Delete, Delete File or Folder
+                    case ConsoleKey.Delete:
+                        //
+                        break;
+
+                    // C, Copy File or Folder
+                    case ConsoleKey.C:
+                        //
+                        break;
+
+                    // V, Paste File or Folder
+                    case ConsoleKey.V:
+                        //
+                        break;
+
+                    // E, Exit from App
+                    case ConsoleKey.E:
+                        close = true;
+                        break;
+
+                    default:
+                        goodResponce = false;
                         break;
                 }
 
@@ -179,43 +241,63 @@ public class App
         foreach (var size in sizes)
         {
             if (bytes < 1024)
-                return $"{bytes} {size}".PadLeft(_maxSizeLength);
+                return $"{bytes} {size} ".PadLeft(_maxSizeLength);
             else
                 bytes = (int)(bytes / 1024);
         }
         return "Realy big file";
     }
 
-    private void WriteHighlightedLine(string text)
-    {
-        // Previous Font and Bg Color
-        var prevBackground = Console.BackgroundColor;
-        var prevForeground = Console.ForegroundColor;
-        
-        // Changing Font and Bg Color
-        Console.BackgroundColor = ConsoleColor.Green;
-        Console.ForegroundColor = ConsoleColor.Black;
-        
-        // Console Writing
-        Console.WriteLine(text);
-
-        // Returning for Previous Font and Bg Color
-        Console.ForegroundColor = prevForeground;
-        Console.BackgroundColor = prevBackground;
-    }
 
     private void ShowFolderInfo()
     {
-        // Showing Directory 
-        Console.WriteLine($"Directory: {Path}");
+        const ConsoleColor highlightColor = ConsoleColor.Cyan;
+
+        // Showing Directory (Directory: {Path})
+        Console.Write("Directory: ");
+        WriteHighlightedWord(Path, highlightColor);
 
         // Moving Instruction
-        Console.WriteLine("Press 'UpArrow' or 'DownArrow' to Move through Files and Folders");
-        
+        // Press 'UpArrow' or 'DownArrow' to Move through Files and Folders
+        Console.Write("\nPress '");
+        WriteHighlightedWord("UpArrow", highlightColor);
+        Console.Write("' or '");
+        WriteHighlightedWord("DownArrow", highlightColor);
+        Console.Write("' to Move through Files and Folders");
+
         // Opening Instruction
-        Console.WriteLine(
-            "Press 'Enter' or 'RightArrow' to Open Folder or File, " +
-            "'Esc' or 'LeftArrow' to Open Parent Folder");
+        // Press 'Enter' or 'RightArrow' to Open Folder or File, 'Esc' or 'LeftArrow' to Open Parent Folder
+        Console.Write("\nPress '");
+        WriteHighlightedWord("Enter", highlightColor);
+        Console.Write("' or '");
+        WriteHighlightedWord("RightArrow", highlightColor);
+        Console.Write("' to Open Folder or File, '");
+        WriteHighlightedWord("Esc", highlightColor);
+        Console.Write("' or '");
+        WriteHighlightedWord("LeftArrow", highlightColor);
+        Console.Write("' to Open Parent Folder");
+
+        // Cut and Delete Instruction
+        // Press 'X' to Cut File or Folder, 'Delete' to Delete File or Folder
+        Console.Write("\nPress '");
+        WriteHighlightedWord("X", highlightColor);
+        Console.Write("' to Cut File or Folder,  '");
+        WriteHighlightedWord("Delete", highlightColor);
+        Console.Write("' to Delete File or Folder");
+
+        // Copy and Paste Instruction
+        // Press 'C' to Copy File or Folder, 'V' to Paste File or Folder
+        Console.Write("\nPress '");
+        WriteHighlightedWord("C", highlightColor);
+        Console.Write("' to Copy File or Folder, '");
+        WriteHighlightedWord("V", highlightColor);
+        Console.Write("' to Paste File or Folder");
+
+        // Closing App Instruction
+        // Press 'E' to Close App
+        Console.Write("\nPress '");
+        WriteHighlightedWord("E", highlightColor);
+        Console.Write("' to Exit");
     }
 
     private void ShowFilesTable(int index, int upperLine)
@@ -244,5 +326,38 @@ public class App
         // Adding Insufficient Lines
         for (int i = 0; i < _maxLines - _tableLines.Count; i++)
             Console.WriteLine();
+    }
+
+    private void WriteHighlightedLine(string text)
+    {
+        // Previous Font and Bg Color
+        var prevBackground = Console.BackgroundColor;
+        var prevForeground = Console.ForegroundColor;
+
+        // Changing Font and Bg Color
+        Console.BackgroundColor = ConsoleColor.Green;
+        Console.ForegroundColor = ConsoleColor.Black;
+
+        // Console Writing
+        Console.WriteLine(text);
+
+        // Returning for Previous Font and Bg Color
+        Console.ForegroundColor = prevForeground;
+        Console.BackgroundColor = prevBackground;
+    }
+
+    private void WriteHighlightedWord(string word, ConsoleColor color)
+    {
+        // Previous Font Color
+        var prevForeground = Console.ForegroundColor;
+
+        // Changing Font Color
+        Console.ForegroundColor = color;
+
+        // Console Writing
+        Console.Write(word);
+
+        // Returning for Previous Font Color
+        Console.ForegroundColor = prevForeground;
     }
 }
