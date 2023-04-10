@@ -8,7 +8,7 @@ public class App
     public AppData Data { get; private set; }
     public AppUI Menu { get; private set; }
 
-    public App(string path)
+    public App(string path = "Drives")
     {
         // Filling fields
         Data = new AppData(this);

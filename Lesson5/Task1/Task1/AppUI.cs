@@ -4,7 +4,7 @@ public class AppUI
 {
     private App _app;
     private List<string> _tableLines = new List<string>();
-    private const int _maxLines = 21;
+    private const int _maxLines = 19;
     private const int _linesPad = 3;
     private const int _maxNameLength = 40;
     private const string _dateFormat = "dd.MM.yy    HH:mm";
@@ -72,6 +72,9 @@ public class AppUI
         bool close = false;
         while (true)
         {
+            // Bad Index
+            if (index < 0 || index >= _tableLines.Count)
+                index = 0;
             // Console Clearing
             Console.Clear();
 
@@ -96,8 +99,11 @@ public class AppUI
                     case ConsoleKey.DownArrow:
                         // if on Button
                         if (index == _tableLines.Count - 1)
-                            goodResponce = false;
-
+                        {
+                            index = 0;
+                            upperLine = 0;
+                        }
+                            
                         // Scroll Down and Move
                         else if (index >= upperLine + _maxLines - _linesPad
                             && upperLine + _maxLines != _tableLines.Count)
@@ -116,7 +122,13 @@ public class AppUI
                     case ConsoleKey.UpArrow:
                         // if on Top
                         if (index == 0)
-                            goodResponce = false;
+                        {
+                            index = _tableLines.Count - 1;
+                            if (_tableLines.Count < _maxLines)
+                                upperLine = 0;
+                            else
+                                upperLine = _tableLines.Count - _maxLines;
+                        }
 
                         // Scroll Pp and Move
                         else if (index < upperLine + _linesPad
@@ -137,9 +149,20 @@ public class AppUI
                         // if Folder
                         if (index < _app.Data.Folders.Count)
                         {
-                            _app.Data.Path = _app.Data.Folders[index].FullName;
-                            index = 0;
-                            upperLine = 0;
+                            try
+                            {
+                                _app.Data.Path = _app.Data.Folders[index].FullName;
+                                index = 0;
+                                upperLine = 0;
+                            }
+                            catch 
+                            { 
+                                var path = _app.Data.Path;
+                                Console.Clear();
+                                Console.WriteLine($"No Access to {path}");
+                                _app.Data.Path = new DirectoryInfo(path).Parent.FullName;
+                                Console.ReadKey();
+                            }
                         }
                         // if File
                         else
@@ -154,12 +177,25 @@ public class AppUI
                     case ConsoleKey key when key == ConsoleKey.LeftArrow || key == ConsoleKey.Escape:
                         var oldPath = new DirectoryInfo(_app.Data.Path);
                         var parent = oldPath.Parent;
+                        Console.Write("d");
 
+                        // if in Drives
+                        if (_app.Data.Path == "Drives")
+                            goodResponce = false;
+                        // Error Handler
+                        else if (_app.Data.Path == "Error Directory, Press Esc")
+                        {
+                            _app.Data.Path = "Drives";
+                        }
                         // if Parent Exist
-                        if (parent != null)
+                        else if (parent != null)
                         {
                             _app.Data.Path = parent.FullName;
                             index = _app.Data.Folders.FindIndex(folder => folder.FullName == oldPath.FullName);
+
+                            // if we can`t find Folder
+                            if (index == -1)
+                                index = 0;
 
                             // Scroll Settings
                             if (index < _maxLines / 2 || _maxLines > _tableLines.Count)
@@ -168,31 +204,76 @@ public class AppUI
                                 upperLine = _tableLines.Count - _maxLines;
                             else 
                                 upperLine = index - _maxLines / 2;
-                            Console.Write("d");
                         }
-                        // if Parent Not Exist
+                        // if Parent is Drives List
                         else
-                            goodResponce = false;
+                        {
+                            _app.Data.Path = "Drives";
+                            index = _app.Data.Folders.FindIndex(folder => folder.FullName == oldPath.FullName);
+
+                            // Scroll Settings
+                            if (index < _maxLines / 2 || _maxLines > _tableLines.Count)
+                                upperLine = 0;
+                            else if (index > _tableLines.Count - _maxLines / 2)
+                                upperLine = _tableLines.Count - _maxLines;
+                            else
+                                upperLine = index - _maxLines / 2;
+                        }
                         break;
 
                     // X, Cut File or Folder
                     case ConsoleKey.X:
-                        //
+                        _app.Data.PasteMod = "Cut";
+                        _app.Data.SetBufferPath(index);
                         break;
 
                     // Delete, Delete File or Folder
                     case ConsoleKey.Delete:
-                        //
+                        // if Folder
+                        if (index < _app.Data.Folders.Count)
+                        {
+                            ShowDeleteQuestion(_app.Data.Folders[index]);
+                        }
+                        // if File
+                        else
+                        {
+                            ShowDeleteQuestion(_app.Data.Files[index - _app.Data.Folders.Count]);
+                        }
+                        // if Deleted Last File
+                        if (index == _tableLines.Count)
+                            index--;
+                        // Upload Data
+                        _app.Data.Path = _app.Data.Path;
                         break;
 
                     // C, Copy File or Folder
                     case ConsoleKey.C:
-                        //
+                        _app.Data.PasteMod = "Copy";
+                        _app.Data.SetBufferPath(index);
                         break;
 
                     // V, Paste File or Folder
                     case ConsoleKey.V:
-                        //
+                        if (_app.Data.PasteMod == "")
+                            goodResponce = false;
+                        else
+                        {
+                            Console.Clear();
+                            Console.WriteLine($"{_app.Data.PasteMod}ing...");
+
+                            if (FileManager.Paste(_app.Data.BufferPath, _app.Data.Path, _app.Data.PasteMod))
+                            {
+                                Console.WriteLine("\nSuccess!");
+                                _app.Data.Path = _app.Data.Path;
+                            }
+                            else
+                            {
+                                Console.WriteLine("\nSomething Wrong :(");
+                            }
+                            _app.Data.SetBufferPath();
+                            _app.Data.PasteMod = "";
+                            Console.ReadKey();
+                        }
                         break;
 
                     // E, Exit from App
@@ -208,6 +289,8 @@ public class AppUI
                 // Exit from Getting Response
                 if (goodResponce)
                     break;
+                else
+                    Console.Write("\b \b");
             }
 
             // Exit from App Menu
@@ -220,7 +303,8 @@ public class AppUI
     {
         const ConsoleColor highlightColor = ConsoleColor.Cyan;
 
-        // Showing Directory (Directory: {Path})
+        // Directory Info
+        // Directory: {Path}
         Console.Write("Directory: ");
         WriteHighlightedWord(_app.Data.Path, highlightColor);
 
@@ -265,14 +349,33 @@ public class AppUI
         Console.Write("\nPress '");
         WriteHighlightedWord("E", highlightColor);
         Console.Write("' to Exit");
+
+        // Buffer Info
+        // Buffer: {BufferPath}
+        var data = _app.Data;
+        if (data.BufferPath != "")
+        {
+            Console.Write($"\nBuffer ({data.PasteMod}): ");
+            WriteHighlightedWord(data.BufferPath, highlightColor);
+        }
     }
 
     private void ShowTable(int index, int upperLine)
     {
+        // Empty Folder
+        if (_tableLines.Count == 0)
+        {
+            Console.WriteLine("Empty Folder");
+
+            // Adding Insufficient Lines
+            for (int i = 0; i < _maxLines; i++)
+                Console.WriteLine();
+            return;
+        }
+
         // Table Head
         Console.ForegroundColor = ConsoleColor.Gray;
         Console.WriteLine($"{index + 1} of {_tableLines.Count}");
-        //Console.WriteLine(" Name ");
 
         // Table Body
         Console.ForegroundColor = ConsoleColor.White;
@@ -326,5 +429,81 @@ public class AppUI
 
         // Returning for Previous Font Color
         Console.ForegroundColor = prevForeground;
+    }
+
+    private void ShowDeleteQuestion(FileInfo file)
+    {
+        const ConsoleColor highlightColor = ConsoleColor.Cyan;
+
+        Console.Clear();
+        Console.WriteLine("Are you sure to Delete this File: ");
+        WriteHighlightedWord(file.FullName, highlightColor);
+        Console.Write("\nY / N?\n");
+
+        while (true)
+        {
+            // Getting Response
+            var response = Console.ReadKey().Key;
+            bool goodResponce = true;
+
+            switch(response)
+            {
+                case ConsoleKey.Y:
+                    Console.WriteLine("\nDeleting...");
+                    
+                    if (FileManager.Delete(file))
+                        Console.WriteLine("\nSuccess!");
+                    else
+                        Console.WriteLine("Something wrong :(");
+                    Console.ReadKey();
+                    break;
+                case ConsoleKey.N:
+                    break;
+                default: 
+                    goodResponce = false;
+                    break;
+            }
+            Console.Write("\b \b");
+            if (goodResponce) 
+                break;
+        }
+    }
+
+    private void ShowDeleteQuestion(DirectoryInfo folder)
+    {
+        const ConsoleColor highlightColor = ConsoleColor.Cyan;
+
+        Console.Clear();
+        Console.WriteLine("Are you sure to Delete this Folder: ");
+        WriteHighlightedWord(folder.FullName, highlightColor);
+        Console.Write("\nY / N?\n");
+
+        while (true)
+        {
+            // Getting Response
+            var response = Console.ReadKey().Key;
+            bool goodResponce = true;
+
+            switch (response)
+            {
+                case ConsoleKey.Y:
+                    Console.WriteLine("\nDeleting...");
+
+                    if (FileManager.Delete(folder))
+                        Console.WriteLine("\nSuccess!");
+                    else 
+                        Console.WriteLine("Something wrong :(");
+                    Console.ReadKey();
+                    break;
+                case ConsoleKey.N:
+                    break;
+                default:
+                    goodResponce = false;
+                    break;
+            }
+            Console.Write("\b \b");
+            if (goodResponce)
+                break;
+        }
     }
 }
