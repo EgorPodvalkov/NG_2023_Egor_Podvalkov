@@ -110,4 +110,29 @@ public static class FileManager
             File.Copy(file, newPath);
         }
     }
+
+    public static List<string> Read(string path)
+    {
+        var list = File.ReadLines(path);
+        var consoleWidth = Console.WindowWidth - 1;
+        var consoleLines = new List<string>();
+
+        foreach (var l in list)
+        {
+            var line = l;
+            
+            // if Line Wider than Console
+            while (line.Length > consoleWidth) 
+            { 
+                // Adding and Shoring line
+                consoleLines.Add(line.Substring(0, consoleWidth));
+                line = line.Substring(consoleWidth);
+            }
+
+            // Adding if Line not Wider than Console 
+            consoleLines.Add(line);
+        }
+
+        return consoleLines;
+    }
 }

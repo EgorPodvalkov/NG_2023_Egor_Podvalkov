@@ -1,6 +1,4 @@
-﻿using static System.Net.Mime.MediaTypeNames;
-
-namespace Task1;
+﻿namespace Task1;
 
 public class App
 {

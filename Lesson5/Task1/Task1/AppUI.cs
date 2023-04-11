@@ -167,8 +167,8 @@ public class AppUI
                         // if File
                         else
                         {
-                            // open file
-                            goodResponce = false;
+                            var filePath = _app.Data.Files[index - _app.Data.Folders.Count].FullName;
+                            ShowFile(filePath);
                         }
                         break;
 
@@ -276,6 +276,11 @@ public class AppUI
                         }
                         break;
 
+                    // F, Go to Path
+                    case ConsoleKey.F:
+                        ShowSearch();
+                        break;
+
                     // E, Exit from App
                     case ConsoleKey.E:
                         close = true;
@@ -343,6 +348,13 @@ public class AppUI
         Console.Write("' to Copy File or Folder, '");
         WriteHighlightedWord("V", highlightColor);
         Console.Write("' to Paste File or Folder");
+
+        // Search File or Folder
+        // Press 'F' to Open Search Menu
+        Console.Write("\nPress '");
+        WriteHighlightedWord("F", highlightColor);
+        Console.Write("' to Go to File or Folder by Path");
+
 
         // Closing App Instruction
         // Press 'E' to Close App
@@ -431,6 +443,81 @@ public class AppUI
         Console.ForegroundColor = prevForeground;
     }
 
+    private void ShowFile(string path)
+    {
+        const ConsoleColor highlightColor = ConsoleColor.Cyan;
+        var lines = FileManager.Read(path);
+        var consoleHeight = Console.WindowHeight - 3;
+        var upperLine = 0;
+        var close = false;
+
+        while (true)
+        {
+            Console.Clear();
+
+            // ---------------
+            // File: {Path}
+            Console.Write($"File: ");
+            WriteHighlightedWord(path, highlightColor);
+            Console.WriteLine();
+            WriteHighlightedWord("\n".PadLeft(Console.WindowWidth, '-'), highlightColor);
+
+            // File Content
+            for (int i  = upperLine; i < lines.Count && i < upperLine + consoleHeight; i++)
+                Console.WriteLine(lines[i]);
+
+            // Response Handler
+            while (true)
+            {
+                var response = Console.ReadKey().Key;
+                var goodResponse = true;
+
+                switch (response)
+                { 
+                    // ↓, Moving Down
+                    case ConsoleKey.DownArrow:
+                        // if on Button
+                        if (upperLine >= lines.Count - consoleHeight )
+                            goodResponse = false;
+                        // if All Good
+                        else
+                            upperLine++;
+                        break;
+
+                    // ↑, Moving Up
+                    case ConsoleKey.UpArrow:
+                        // if on Top
+                        if (upperLine == 0)
+                            goodResponse = false;
+                        // if All Good
+                        else
+                            upperLine--;
+                        break;
+
+                    // Esc or ←, Close File Reader
+                    case ConsoleKey key when key == ConsoleKey.LeftArrow || key == ConsoleKey.Escape:
+                        close = true;
+                        Console.Write('d');
+                        break;
+
+                    // Bad Response
+                    default:
+                        goodResponse = false;
+                        break;
+                }
+
+                if (goodResponse)
+                    break;
+                else
+                    Console.Write("\b \b");
+            }
+
+            if (close)
+                break;
+        }
+        // Console.SetCursorPosition(0, Console.CursorTop - lines.Count);
+    }
+
     private void ShowDeleteQuestion(FileInfo file)
     {
         const ConsoleColor highlightColor = ConsoleColor.Cyan;
@@ -504,6 +591,37 @@ public class AppUI
             Console.Write("\b \b");
             if (goodResponce)
                 break;
+        }
+    }
+
+    private void ShowSearch()
+    {
+        Console.Clear();
+
+        // Enter Path: {UserInput}
+        Console.Write("Enter Path: ");
+        var response = Console.ReadLine();
+
+        // if Folder
+        if (Directory.Exists(response))
+            _app.Data.Path = response;
+
+        // if Drives Folder
+        else if (response.ToLower() == "drives")
+            _app.Data.Path = "Drives";
+        
+        // if File
+        else if (File.Exists(response))
+        {
+            _app.Data.Path = new FileInfo(response).DirectoryName;
+            ShowFile(response);
+        }
+
+        // if Bad Path
+        else
+        {
+            Console.WriteLine("Bad Path :(");
+            Console.ReadKey();
         }
     }
 }
