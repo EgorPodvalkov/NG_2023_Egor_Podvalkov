@@ -1,3 +1,4 @@
 ﻿using Task1;
 
-new UI(true);
+var ui = new UI();
+ui.Run();

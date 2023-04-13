@@ -4,11 +4,9 @@ public class UI
 {
     private Calculator _calculator = new Calculator();
 
-    public UI(bool run = false)
+    public UI()
     {
         _calculator.Log += Console.WriteLine;
-        while(run)
-            Run();
     }
 
     public void Run()
@@ -16,14 +14,22 @@ public class UI
         // Clearing
         Console.Clear();
 
-        // Getting Arguments
-        var num1 = GetNumberFromConsole("Enter First Number: ");
-        var operation = GetOperationFromConsole();
-        var num2 = GetNumberFromConsole("Enter Second Number: ");
-        Console.WriteLine();
-        
-        // Calculating
-        _calculator.Calculate(num1, num2, operation);
+        try
+        {
+            // Getting Arguments
+            var num1 = GetNumberFromConsole("Enter First Number: ");
+            var operation = GetOperationFromConsole();
+            var num2 = GetNumberFromConsole("Enter Second Number: ");
+            Console.WriteLine();
+
+            // Calculating
+            _calculator.Calculate(num1, num2, operation);
+        }
+        catch
+        { 
+            // Bad Input
+            Console.WriteLine($"Bad Input :(");
+        }
 
         // Waiting User
         Console.ReadLine();
@@ -33,52 +39,37 @@ public class UI
     {
         // Asking Number
         Console.Write(message);
-        float result;
 
         // Getting Number
-        while (!float.TryParse(Console.ReadLine(), out result))
-        {
-            // Asking Number
-            Console.WriteLine("Something Wrong :(, Try Again!");
-            Console.Write(message);
-        }
-        
-        return result;
+        return float.Parse(Console.ReadLine());
     }
 
     private Calculator.Operation GetOperationFromConsole(string message = "Enter Operation: ")
     {
-        Calculator.Operation? operation = null;
+        // Asking Operation
+        Console.Write(message);
 
-        while (operation == null)
-        {
-            // Asking Operation
-            Console.Write(message);
+        // Getting User Response
+        var response = Console.ReadLine().ToLower();
 
-            // Getting User Response
-            var response = Console.ReadLine().ToLower();
+        // Getting Operation Add
+        if (response == "+" || response == "sum" || response == "add" || response == "addition")
+            return Calculator.Add;
 
-            // Getting Operation Add
-            if (response == "+" || response == "sum" || response == "add" || response == "addition")
-                operation = Calculator.Add;
+        // Getting Operation Sub
+        else if (response == "-" || response == "sub" || response == "subtract" || response == "subtraction")
+            return Calculator.Sub;
 
-            // Getting Operation Sub
-            else if (response == "-" || response == "sub" || response == "subtract" || response == "subtraction")
-                operation = Calculator.Sub;
+        // Getting Operation Mul
+        else if (response == "*" || response == "mul" || response == "times" || response == "multiply")
+            return Calculator.Mul;
 
-            // Getting Operation Mul
-            else if (response == "*" || response == "mul" || response == "times" || response == "multiply")
-                operation = Calculator.Mul;
+        // Getting Operation Div
+        else if (response == "/" || response == "div" || response == "division" || response == "divide")
+            return Calculator.Div;
 
-            // Getting Operation Div
-            else if (response == "/" || response == "div" || response == "division" || response == "divide")
-                operation = Calculator.Div;
-
-            // if Bad Operation
-            else
-                Console.WriteLine("Something Wrong :(, Try Again!");
-        }
-
-        return operation;
+        // if Bad Operation
+        else
+            throw new Exception("Bad Operation :(");
     }
 }
