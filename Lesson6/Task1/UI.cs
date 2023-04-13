@@ -50,26 +50,29 @@ public class UI
         Console.Write(message);
 
         // Getting User Response
-        var response = Console.ReadLine().ToLower();
+        var input = Console.ReadLine().ToLower();
 
-        // Getting Operation Add
-        if (response == "+" || response == "sum" || response == "add" || response == "addition")
-            return Calculator.Add;
+        switch (input)
+        {
+            // Getting Operation Add
+            case string response when response == "+" || response == "sum" || response == "add" || response == "addition":
+                return Calculator.Add;
 
-        // Getting Operation Sub
-        else if (response == "-" || response == "sub" || response == "subtract" || response == "subtraction")
-            return Calculator.Sub;
+            // Getting Operation Sub
+            case string response when response == "-" || response == "sub" || response == "subtract" || response == "subtraction":
+                return Calculator.Sub;
 
-        // Getting Operation Mul
-        else if (response == "*" || response == "mul" || response == "times" || response == "multiply")
-            return Calculator.Mul;
+            // Getting Operation Mul
+            case string response when response == "*" || response == "mul" || response == "times" || response == "multiply":
+                return Calculator.Mul;
 
-        // Getting Operation Div
-        else if (response == "/" || response == "div" || response == "division" || response == "divide")
-            return Calculator.Div;
+            // Getting Operation Div
+            case string response when response == "/" || response == "div" || response == "division" || response == "divide":
+                return Calculator.Div;
 
-        // if Bad Operation
-        else
-            throw new Exception("Bad Operation :(");
+            // if Bad Operation
+            default:
+                throw new Exception("Bad Operation :(");
+        }
     }
 }
