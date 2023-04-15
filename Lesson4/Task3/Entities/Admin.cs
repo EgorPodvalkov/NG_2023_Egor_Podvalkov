@@ -2,8 +2,6 @@
 
 public class Admin : User
 {
-    public new readonly string Role = "Admin"; 
-
-    public Admin(string name)
-        : base(name) { }
+    public string Role { get; } = "Admin";
+    public Admin(string name) : base(name) { }
 }
