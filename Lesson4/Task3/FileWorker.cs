@@ -4,21 +4,22 @@ namespace Task3;
 
 public class FileWorker : IFileWorker
 {
+    private Checker _checker = new Checker();
     public void GetDataFromFile(string filename)
     {
-        new Checker().CheckRole();
+        _checker.CheckRole();
         Console.WriteLine("Getting...");
     }
 
     public string ReadFromFile(string filename)
     {
-        new Checker().CheckRole();
+        _checker.CheckRole();
         return "Reading...";
     }
 
     public void WriteToFile(string filename)
     {
-        new Checker().CheckRole();
+        _checker.CheckRole();
         Console.WriteLine("Writting...");
     }
 }
