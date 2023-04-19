@@ -2,35 +2,39 @@
 
 public static class FileManager
 {
-    public static bool Delete(FileInfo file)
+    public static bool Delete(FileInfo file) => DeleteAsync(file).Result;
+    public static bool Delete(DirectoryInfo folder) => DeleteAsync(folder).Result;
+
+    async private static Task<bool> DeleteAsync(FileInfo file)
     {
         try
         {
             File.Delete(file.FullName);
         }
-        catch 
-        { 
+        catch
+        {
             return false;
         }
         return true;
     }
-    public static bool Delete(DirectoryInfo folder)
+
+    async private static Task<bool> DeleteAsync(DirectoryInfo folder)
     {
         try
         {
             // Deleting all Child Folders
             foreach (var childFolder in folder.GetDirectories())
-                Delete(childFolder);
+                await DeleteAsync(childFolder);
 
             // Deleting all Files
             foreach (var files in folder.GetFiles())
-                Delete(files);
+                await DeleteAsync(files);
 
             // Deleting Empty Folder
             Directory.Delete(folder.FullName);
         }
-        catch 
-        { 
+        catch
+        {
             return false;
         }
         return true;
@@ -73,7 +77,7 @@ public static class FileManager
 
                 // if user Copy Folder
                 else if (pasteMod == "Copy")
-                    CopyDirectory(fromPath, toPath);
+                    CopyDirectoryAcync(fromPath, toPath).Wait();
 
                 // if Bad Mod
                 else
@@ -91,7 +95,7 @@ public static class FileManager
         return true;
     }
 
-    private static void CopyDirectory(string fromPath, string toPath) 
+    async private static Task CopyDirectoryAcync(string fromPath, string toPath) 
     {
         // Creating Folder
         Directory.CreateDirectory(toPath);
@@ -100,16 +104,22 @@ public static class FileManager
         foreach(var fromSubPath in Directory.GetDirectories(fromPath))
         {
             var newPath = $"{toPath}\\{new FileInfo(fromSubPath).Name}";
-            CopyDirectory(fromSubPath, newPath);
+            await CopyDirectoryAcync(fromSubPath, newPath);
         }
 
         // Copying Files
         foreach (var file in Directory.GetFiles(fromPath))
         {
-            var newPath = $"{toPath}\\{new FileInfo(file).Name}";
-            File.Copy(file, newPath);
+            await CopyFileAcync(file, toPath);
         }
     }
+
+    async private static Task CopyFileAcync(string file, string toPath)
+    {
+        var newPath = $"{toPath}\\{new FileInfo(file).Name}";
+        File.Copy(file, newPath);
+    } 
+
 
     public static List<string> Read(string path)
     {
