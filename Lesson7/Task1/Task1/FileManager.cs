@@ -5,7 +5,7 @@ public static class FileManager
     public static bool Delete(FileInfo file) => DeleteAsync(file).Result;
     public static bool Delete(DirectoryInfo folder) => DeleteAsync(folder).Result;
 
-    async private static Task<bool> DeleteAsync(FileInfo file)
+    private async static Task<bool> DeleteAsync(FileInfo file)
     {
         try
         {
@@ -18,7 +18,7 @@ public static class FileManager
         return true;
     }
 
-    async private static Task<bool> DeleteAsync(DirectoryInfo folder)
+    private async static Task<bool> DeleteAsync(DirectoryInfo folder)
     {
         try
         {
@@ -95,7 +95,7 @@ public static class FileManager
         return true;
     }
 
-    async private static Task CopyDirectoryAcync(string fromPath, string toPath) 
+    private async static Task CopyDirectoryAcync(string fromPath, string toPath) 
     {
         // Creating Folder
         Directory.CreateDirectory(toPath);
@@ -114,7 +114,7 @@ public static class FileManager
         }
     }
 
-    async private static Task CopyFileAcync(string file, string toPath)
+    private async static Task CopyFileAcync(string file, string toPath)
     {
         var newPath = $"{toPath}\\{new FileInfo(file).Name}";
         File.Copy(file, newPath);
